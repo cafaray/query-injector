@@ -1,8 +1,8 @@
-# ⚽ Football Quiz Generator
+# Football Quiz Generator
 
 An AI-powered multilingual football trivia generator that creates structured quiz questions using Google's Gemini API. The system generates questions in Spanish, Catalan, and English with randomized answer positions.
 
-## 🎯 Core Features
+## Core Features
 
 - **Multilingual Support**: Questions generated in Spanish (es), Catalan (ca), and English (en)
 - **Batch Generation**: Creates 3 different questions per API call for efficiency
@@ -10,7 +10,7 @@ An AI-powered multilingual football trivia generator that creates structured qui
 - **Structured Data**: JSON output with strict validation using Pydantic models
 - **Category System**: 6 predefined categories for organized quiz generation
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
@@ -39,7 +39,7 @@ An AI-powered multilingual football trivia generator that creates structured qui
 - **`data_manager.py`**: Data validation, storage, and Pydantic models
 - **`football_quiz_data.json`**: Persistent JSON storage for generated quizzes
 
-## 🚀 How It Works
+## How It Works
 
 1. **User Input**: Select category and enter specific topic
 2. **API Request**: System sends structured prompt to Gemini API requesting 3 questions
@@ -48,7 +48,7 @@ An AI-powered multilingual football trivia generator that creates structured qui
 5. **Storage**: Valid quizzes are appended to JSON file
 6. **Display**: Preview shows generated questions in English
 
-## 📋 Categories
+## Categories
 
 | ID | Category | Description |
 |----|----------|-------------|
@@ -59,7 +59,7 @@ An AI-powered multilingual football trivia generator that creates structured qui
 | 5 | Team | Club information, players, management |
 | 6 | Assistants | Coaches, staff, technical teams |
 
-## 🛠️ Installation & Setup
+## Installation & Setup
 
 ### Prerequisites
 - Python 3.8+
@@ -87,7 +87,7 @@ uv pip install -r requirements.txt
 export GEMINI_API_KEY="your_api_key_here"
 ```
 
-## 🎮 Usage
+## Usage
 
 ### Basic Execution
 
@@ -115,7 +115,7 @@ Selected Category: Match.
 Enter a specific topic/query (e.g., 'Manchester Derby 2024'): El Clasico 2023
 ```
 
-## 📊 Output Format
+## Output Format
 
 ### JSON Structure
 
@@ -148,7 +148,7 @@ Enter a specific topic/query (e.g., 'Manchester Derby 2024'): El Clasico 2023
 }
 ```
 
-## 💡 Examples
+## Examples
 
 ### Example 1: Match Category
 **Input**: `Barcelona vs Real Madrid 2023`
@@ -162,7 +162,7 @@ Enter a specific topic/query (e.g., 'Manchester Derby 2024'): El Clasico 2023
 **Input**: `Camp Nou stadium`
 **Output**: Questions about stadium capacity, location, and notable matches
 
-## 🔧 Technical Details
+## Technical Details
 
 ### API Configuration
 - **Model**: `gemini-2.5-flash-preview-09-2025`
@@ -182,7 +182,7 @@ Enter a specific topic/query (e.g., 'Manchester Derby 2024'): El Clasico 2023
 - JSON parsing error handling
 - Data validation with detailed error messages
 
-## 📁 File Structure
+## File Structure
 
 ```
 query-injector/
@@ -194,7 +194,7 @@ query-injector/
 └── README.md                # This documentation
 ```
 
-## 🚨 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -210,6 +210,6 @@ Add debug prints in `gemini_client.py` to inspect API responses:
 print(f"Raw API Response: {result}")
 ```
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License.
