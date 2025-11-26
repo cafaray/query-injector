@@ -9,6 +9,8 @@ An AI-powered multilingual football trivia generator that creates structured qui
 - **Randomized Answers**: Correct answer position varies (A, B, C, or D) to prevent predictability
 - **Structured Data**: JSON output with strict validation using Pydantic models
 - **Category System**: 6 predefined categories for organized quiz generation
+- **Source Tracking**: Each answer includes source information for verification
+- **Bulk Upload**: Upload entire quiz database to backend service in one operation
 
 ## Architecture
 
@@ -82,10 +84,23 @@ uv pip install -r requirements.txt
 
 ### Configuration
 
+Copy and configure the `.env` file:
+
 ```bash
-# Set your Gemini API key
-export GEMINI_API_KEY="your_api_key_here"
+# Copy the environment template
+cp .env .env.local
+
+# Edit .env file with your actual values
+GEMINI_API_KEY=your_actual_gemini_api_key
+QUARKUS_UPLOAD_URL=http://localhost:8080/v1/questions/bulkUpload
 ```
+
+**Environment Variables:**
+- `GEMINI_API_KEY`: Your Google Gemini API key
+- `GEMINI_BASE_URL`: Gemini API base URL (default provided)
+- `QUARKUS_UPLOAD_URL`: Backend upload endpoint
+- `QUARKUS_UPLOAD_URL_LOCAL`: Local development endpoint
+- `QUARKUS_UPLOAD_URL_PROD`: Production endpoint
 
 ## Usage
 
@@ -108,9 +123,10 @@ Please select a query category:
   [4] Curious Info
   [5] Team
   [6] Assistants
+  [7] Upload Quiz Data to Backend
   [0] Exit
 --------------------------------------------------
-Enter your choice (1-6 or 0 to exit): 1
+Enter your choice (1-7 or 0 to exit): 1
 Selected Category: Match.
 Enter a specific topic/query (e.g., 'Manchester Derby 2024'): El Clasico 2023
 ```
@@ -144,7 +160,8 @@ Enter a specific topic/query (e.g., 'Manchester Derby 2024'): El Clasico 2023
     "es": "Real Madrid ganó 2-1",
     "ca": "El Real Madrid va guanyar 2-1",
     "en": "Real Madrid won 2-1"
-  }
+  },
+  "source": "Official La Liga website"
 }
 ```
 
@@ -162,6 +179,14 @@ Enter a specific topic/query (e.g., 'Manchester Derby 2024'): El Clasico 2023
 **Input**: `Camp Nou stadium`
 **Output**: Questions about stadium capacity, location, and notable matches
 
+### Example 4: Bulk Upload
+**Menu Option**: `[7] Upload Quiz Data to Backend`
+**Process**: 
+1. Select option 7
+2. Enter file path (or press Enter for default `football_quiz_data.json`)
+3. System validates all quiz data
+4. Uploads valid quizzes to configured backend service
+
 ## Technical Details
 
 ### API Configuration
@@ -175,12 +200,20 @@ Enter a specific topic/query (e.g., 'Manchester Derby 2024'): El Clasico 2023
 - **Required Fields**: All quiz components must be present
 - **Language Validation**: Ensures all three languages are included
 - **Option Validation**: Exactly 4 options (A, B, C, D) required
+- **Source Validation**: Each answer must include source information
+
+### Backend Integration
+- **Bulk Upload**: Validates and uploads entire quiz database
+- **Data Validation**: Pre-upload validation using Pydantic models
+- **Error Recovery**: Skips invalid entries, uploads valid ones
+- **Configurable Endpoints**: Local and production URLs via environment variables
 
 ### Error Handling
 - API key validation
 - Network error recovery with retries
 - JSON parsing error handling
 - Data validation with detailed error messages
+- Upload failure recovery with detailed error reporting
 
 ## File Structure
 
@@ -190,7 +223,9 @@ query-injector/
 ├── gemini_client.py          # Gemini API integration
 ├── data_manager.py           # Data validation & storage
 ├── football_quiz_data.json   # Generated quiz storage
-├── requirements.txt          # Python dependencies
+├── .env                      # Environment configuration
+├── .gitignore               # Git ignore rules
+├── requirements.txt          # Dependencies (requests, pydantic, python-dotenv)
 └── README.md                # This documentation
 ```
 
@@ -198,10 +233,13 @@ query-injector/
 
 ### Common Issues
 
-1. **API Key Error**: Ensure `GEMINI_API_KEY` environment variable is set
+1. **API Key Error**: Ensure `GEMINI_API_KEY` is set in `.env` file
 2. **Network Errors**: Check internet connection and API quotas
 3. **Validation Errors**: Verify JSON structure matches expected schema
 4. **Empty Responses**: Check API key permissions and model availability
+5. **Upload Failures**: Verify `QUARKUS_UPLOAD_URL` is correct and backend is running
+6. **File Not Found**: Check quiz data file path when using bulk upload
+7. **Environment Variables**: Ensure `.env` file exists and `python-dotenv` is installed
 
 ### Debug Mode
 Add debug prints in `gemini_client.py` to inspect API responses:

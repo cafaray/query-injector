@@ -68,6 +68,7 @@ class QuizItem(BaseModel):
     options: List[Option]
     correct_option_id: str = Field(pattern="^[A-D]$")
     correct_answer_text: MultilingualText
+    source: str
 
 def validate_quiz_structure(data: Dict[str, Any]) -> Dict[str, Any] | None:
     """Validates the generated quiz data against the Pydantic schema."""

@@ -12,34 +12,39 @@ from typing import Dict, Any, List
 # --- Configuration Constants ---
 # Use the model optimized for structured responses and grounding
 GEMINI_MODEL = "gemini-2.5-flash-preview-09-2025"
-API_KEY = os.environ.get("GEMINI_API_KEY", "") # Assumes API key is set as an environment variable
-BASE_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent?key={API_KEY}"
+API_KEY = os.environ.get("GEMINI_API_KEY", "")
+GEMINI_BASE_URL = os.environ.get("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/models")
+BASE_URL = f"{GEMINI_BASE_URL}/{GEMINI_MODEL}:generateContent?key={API_KEY}"
 MAX_RETRIES = 5
 
 # --- LLM System Instructions ---
 SYSTEM_PROMPT = (
-    "Generate THREE different football trivia questions in Spanish, Catalan, and English. RANDOMIZE the correct answer position for each. Return ONLY valid JSON array:\n"
+    "Generate THREE different football trivia questions in Spanish, Catalan, and English. RANDOMIZE the correct answer position for each. Include source information for verification. Return ONLY valid JSON array:\n"
     "[\n"
     '  {\n'
     '    "question": {"es": "Primera pregunta", "ca": "Primera pregunta", "en": "First question"},\n'
     '    "options": [{"id": "A", "text": {"es": "A", "ca": "A", "en": "A"}}, {"id": "B", "text": {"es": "B", "ca": "B", "en": "B"}}, {"id": "C", "text": {"es": "C", "ca": "C", "en": "C"}}, {"id": "D", "text": {"es": "D", "ca": "D", "en": "D"}}],\n'
     '    "correct_option_id": "C",\n'
-    '    "correct_answer_text": {"es": "Respuesta 1", "ca": "Resposta 1", "en": "Answer 1"}\n'
+    '    "correct_answer_text": {"es": "Respuesta 1", "ca": "Resposta 1", "en": "Answer 1"},\n'
+    '    "source": "Official website or reliable source"\n'
     '  },\n'
     '  {\n'
     '    "question": {"es": "Segunda pregunta", "ca": "Segona pregunta", "en": "Second question"},\n'
     '    "options": [{"id": "A", "text": {"es": "A", "ca": "A", "en": "A"}}, {"id": "B", "text": {"es": "B", "ca": "B", "en": "B"}}, {"id": "C", "text": {"es": "C", "ca": "C", "en": "C"}}, {"id": "D", "text": {"es": "D", "ca": "D", "en": "D"}}],\n'
     '    "correct_option_id": "B",\n'
-    '    "correct_answer_text": {"es": "Respuesta 2", "ca": "Resposta 2", "en": "Answer 2"}\n'
+    '    "correct_answer_text": {"es": "Respuesta 2", "ca": "Resposta 2", "en": "Answer 2"},\n'
+    '    "source": "Official website or reliable source"\n'
     '  },\n'
     '  {\n'
     '    "question": {"es": "Tercera pregunta", "ca": "Tercera pregunta", "en": "Third question"},\n'
     '    "options": [{"id": "A", "text": {"es": "A", "ca": "A", "en": "A"}}, {"id": "B", "text": {"es": "B", "ca": "B", "en": "B"}}, {"id": "C", "text": {"es": "C", "ca": "C", "en": "C"}}, {"id": "D", "text": {"es": "D", "ca": "D", "en": "D"}}],\n'
     '    "correct_option_id": "A",\n'
-    '    "correct_answer_text": {"es": "Respuesta 3", "ca": "Resposta 3", "en": "Answer 3"}\n'
+    '    "correct_answer_text": {"es": "Respuesta 3", "ca": "Resposta 3", "en": "Answer 3"},\n'
+    '    "source": "Official website or reliable source"\n'
     '  }\n'
     "]\n"
-    "IMPORTANT: Mix up correct answers (A, B, C, D) across the three questions."
+    "IMPORTANT: Mix up correct answers (A, B, C, D) across the three questions.\n"
+    "Include a reliable source for each answer (official websites, sports databases, etc.)."
 )
 
 # --- JSON Schema for Structured Output (Enforced by the API) ---

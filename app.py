@@ -3,8 +3,17 @@
 # It interacts with both the Gemini service client and the data manager modules.
 import os
 from typing import Dict, Any, List
+from dotenv import load_dotenv
 from gemini_client import generate_quiz
+
+# Load environment variables from .env file
+load_dotenv()
 from data_manager import save_quiz_data, validate_quiz_structure, QUIZ_DATA_FILE
+import requests
+import json
+
+# --- Configuration ---
+QUARKUS_UPLOAD_URL = os.environ.get("QUARKUS_UPLOAD_URL", "http://localhost:8080/api/quizzes")
 
 # --- Quiz Categories (Matching the design document) ---
 CATEGORIES = {
@@ -24,8 +33,59 @@ def display_menu() -> None:
     print("Please select a query category:")
     for key, value in CATEGORIES.items():
         print(f"  [{key}] {value}")
+    print("  [7] Upload Quiz Data to Backend")
     print("  [0] Exit")
     print("-" * 50)
+
+def upload_bulk_data() -> None:
+    """Uploads entire quiz data file to backend after validation."""
+    file_path = input("Enter the path to the quiz data file (or press Enter for default): ").strip()
+    if not file_path:
+        file_path = QUIZ_DATA_FILE
+    
+    if not os.path.exists(file_path):
+        print(f"❌ File not found: {file_path}")
+        return
+    
+    try:
+        with open(file_path, 'r') as f:
+            quiz_data = json.load(f)
+        
+        if not isinstance(quiz_data, list):
+            print("❌ Invalid file format: Expected JSON array")
+            return
+        
+        # Validate each quiz item
+        valid_quizzes = []
+        for i, quiz in enumerate(quiz_data):
+            validated = validate_quiz_structure(quiz)
+            if validated:
+                valid_quizzes.append(validated)
+            else:
+                print(f"❌ Skipping invalid quiz at index {i}")
+        
+        if not valid_quizzes:
+            print("❌ No valid quizzes found to upload")
+            return
+        
+        print(f"🌍 Uploading {len(valid_quizzes)} quizzes to: {QUARKUS_UPLOAD_URL}")
+        
+        response = requests.post(
+            QUARKUS_UPLOAD_URL,
+            json=valid_quizzes,
+            headers={"Content-Type": "application/json"},
+            timeout=30
+        )
+        response.raise_for_status()
+        
+        print(f"✅ Successfully uploaded {len(valid_quizzes)} quizzes (Status: {response.status_code})")
+        
+    except json.JSONDecodeError:
+        print("❌ Invalid JSON format in file")
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Upload failed: {e}")
+    except Exception as e:
+        print(f"❌ Unexpected error: {e}")
 
 def main() -> None:
     """Main execution function for the CLI application."""
@@ -39,11 +99,14 @@ def main() -> None:
 
     while True:
         display_menu()
-        choice = input("Enter your choice (1-6 or 0 to exit): ").strip()
+        choice = input("Enter your choice (1-7 or 0 to exit): ").strip()
 
         if choice == '0':
             print("\nShutting down. Goodbye! 👋")
             break
+        elif choice == '7':
+            upload_bulk_data()
+            continue
         
         category_name = CATEGORIES.get(choice)
         
@@ -78,11 +141,11 @@ def main() -> None:
                         print(f"    [{opt['id']}] {opt['text']['en']}")
                     print(f"  Correct Answer ID: {validated_quiz['correct_option_id']}")
                     print(f"  Answer Text (EN): {validated_quiz['correct_answer_text']['en']}")
+                    print(f"  Source: {validated_quiz['source']}")
                     print("#"*60)
                     
                     # 4. Save the data
                     save_quiz_data(validated_quiz)
-                
                 else:
                     print(f"\nSkipping save for quiz {i} due to validation failure.")
         else:
